@@ -4,6 +4,15 @@
 
 # 安装
 
+1. `git@github.com:renmu123/ass-convert.git`
+2. `npm i`
+3. `node index.js -i example.ass`
+
+# 打包
+
+1. `npm install -g pkg`
+2. `npm run build`
+
 # 使用
 
 ```

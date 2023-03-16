@@ -1,2 +1,3 @@
 *.ass
 node_modules
+dist
