@@ -46,8 +46,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/ass-convert.exe
-          asset_name: ass-convert.exe
+          asset_path: ./dist/ass-convert-win.exe
+          asset_name: ass-convert-win.exe
           asset_content_type: application/octet-stream
       - name: Upload linux-version
         id: upload-linux-version
