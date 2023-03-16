@@ -3,7 +3,7 @@ name: Build plugin
 on:
   push:
     branches:
-      - "main"
+      - "master"
     tags:
       - "*"
 
