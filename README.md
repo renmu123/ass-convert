@@ -6,6 +6,7 @@
 
 # 使用
 
+```
 Usage: node index.js [options]
 
 Options:
@@ -14,3 +15,4 @@ Options:
 -d, --duration <number> 持续时间（秒） (default: 5)
 -r, --replaceSource 替换源文件 (default: false)
 -h, --help display help for command
+```
