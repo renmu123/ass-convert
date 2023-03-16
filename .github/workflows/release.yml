@@ -24,7 +24,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          npm install
+          npm  install
           npm run build
           ls
           echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"
@@ -47,4 +47,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/ass-convert.exe
           asset_name: ass-convert.exe
-          # asset_content_type: text/javascript
+          asset_content_type: application/octet-stream
