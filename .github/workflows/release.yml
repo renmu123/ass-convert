@@ -27,6 +27,7 @@ jobs:
           npm  install
           npm run build
           ls
+          ls dist
           echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"
       - name: Create Release
         id: create_release
