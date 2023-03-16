@@ -1,6 +1,6 @@
 # 介绍
 
-用于修改由[DanmakuFactory](https://github.com/hihkm/DanmakuFactory)生成的[BililiveRecorder](https://github.com/BililiveRecorder/BililiveRecorder)弹幕文件中的 sc 弹幕的相关样式
+用于修改由 [DanmakuFactory](https://github.com/hihkm/DanmakuFactory) 生成的 [BililiveRecorder](https://github.com/BililiveRecorder/BililiveRecorder) 弹幕文件中的 sc 弹幕的相关样式
 
 # 安装
 
