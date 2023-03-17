@@ -10,8 +10,7 @@
 
 # 打包
 
-1. `npm install -g pkg`
-2. `npm run build`
+1. `npm run build`
 
 # 使用
 
