@@ -10,6 +10,6 @@ program
 program.parse();
 
 const options = program.opts();
-console.log(options);
+options.duration = Number(options.duration);
 
 convertAss(options.input, options.output, options);
