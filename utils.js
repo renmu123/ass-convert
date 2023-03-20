@@ -3,7 +3,59 @@ const path = require("path");
 
 const { parse, stringify, compile, decompile } = require("ass-compiler");
 
-const moveRegex = /{\\move\((.*?)\)\\(.+?)}/g;
+const groupBy = (arr, func) => {
+  const map = new Map();
+  arr.forEach((item) => {
+    const key = func(item);
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key).push(item);
+  });
+  return map;
+};
+
+const handleMessageBox = (items, options) => {
+  const messageDialogues = items.filter((item) => item.style === "message_box");
+  const otherDialogues = items.filter((item) => item.style !== "message_box");
+
+  const sortedMessageDialogues = messageDialogues.sort(
+    (a, b) => a.start - b.start
+  );
+  const grounpedMessageDialogues = Array.from(
+    groupBy(sortedMessageDialogues, (item) => `${item.start}-${item.end}`)
+  );
+  for (let i = 1; i < grounpedMessageDialogues.length; i++) {
+    const [lastDialogueStart, lastDialogueEnd] = grounpedMessageDialogues[
+      i - 1
+    ][0]
+      .split("-")
+      .map(Number);
+
+    const [currentDialogueStart] = grounpedMessageDialogues[i][0]
+      .split("-")
+      .map(Number);
+    const currentDialogues = grounpedMessageDialogues[i][1];
+
+    if (
+      currentDialogueStart > lastDialogueStart &&
+      currentDialogueStart < lastDialogueEnd
+    ) {
+      currentDialogues.forEach((dialogue) => {
+        dialogue.start = lastDialogueEnd;
+        dialogue.end = lastDialogueEnd + options.duration + 1;
+      });
+    }
+  }
+  const newItems = [
+    ...otherDialogues,
+    ...grounpedMessageDialogues.reduce((acc, cur) => {
+      return [...acc, ...cur[1]];
+    }, []),
+  ];
+
+  return newItems;
+};
 
 const convertAss = (
   input,
@@ -32,7 +84,6 @@ const convertAss = (
   // 移除message_box的动画样式
   for (const item of assData["dialogues"]) {
     if (item.style === "message_box" && item.clip) {
-      // console.log(item);
       continue;
     }
     if (item.style === "message_box" && item.move) {
@@ -47,24 +98,11 @@ const convertAss = (
     items.push(item);
   }
 
-  // 修复重复的sc
-  for (let i = 1; i < items.length; i++) {
-    if (
-      items[i].style === "message_box" &&
-      items[i].pos &&
-      items[i].start < items[i - 1].end &&
-      items[i].start > items[i - 1].start
-    ) {
-      items[i].start = items[i - 1].end;
-      items[i].end = items[i].start + options.duration;
-    }
-  }
-
+  items = handleMessageBox(items, options);
   assData["dialogues"] = items;
 
   // 将修改后的Ass数据转换回字符串
   const newAssContent = decompile(assData);
-
   // 将修改后的Ass数据写入到新文件中
   fs.writeFileSync(outputPath, newAssContent, "utf8");
 };
