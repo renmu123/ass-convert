@@ -24,3 +24,13 @@ Options:
 -r, --replaceSource 替换源文件 (default: false)
 -h, --help display help for command
 ```
+
+# 更新记录
+
+## 1.1.0
+
+1. 在多个 sc 时间冲突时，后移冲突的 sc 时间
+
+## 1.0.0
+
+1. 完成基础功能
