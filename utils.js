@@ -22,34 +22,39 @@ const handleMessageBox = (items, options) => {
   const sortedMessageDialogues = messageDialogues.sort(
     (a, b) => a.start - b.start
   );
-  const grounpedMessageDialogues = Array.from(
+  const groupedMessageDialogues = Array.from(
     groupBy(sortedMessageDialogues, (item) => `${item.start}-${item.end}`)
   );
-  for (let i = 1; i < grounpedMessageDialogues.length; i++) {
-    const [lastDialogueStart, lastDialogueEnd] = grounpedMessageDialogues[
+
+  // Loop through grouped dialogues
+  for (let i = 1; i < groupedMessageDialogues.length; i++) {
+    const [lastDialogueStart, lastDialogueEnd] = groupedMessageDialogues[
       i - 1
     ][0]
       .split("-")
       .map(Number);
 
-    const [currentDialogueStart] = grounpedMessageDialogues[i][0]
+    const [currentDialogueStart] = groupedMessageDialogues[i][0]
       .split("-")
       .map(Number);
-    const currentDialogues = grounpedMessageDialogues[i][1];
+    const currentDialogues = groupedMessageDialogues[i][1];
 
+    // If current dialogue start time is between last dialogue start and end times
     if (
       currentDialogueStart > lastDialogueStart &&
       currentDialogueStart < lastDialogueEnd
     ) {
+      // Update current dialogue start and end times
       currentDialogues.forEach((dialogue) => {
-        dialogue.start = lastDialogueEnd;
+        dialogue.start = lastDialogueEnd + 1;
         dialogue.end = lastDialogueEnd + options.duration + 1;
       });
     }
   }
+
   const newItems = [
     ...otherDialogues,
-    ...grounpedMessageDialogues.reduce((acc, cur) => {
+    ...groupedMessageDialogues.reduce((acc, cur) => {
       return [...acc, ...cur[1]];
     }, []),
   ];
@@ -107,5 +112,4 @@ const convertAss = (
   fs.writeFileSync(outputPath, newAssContent, "utf8");
 };
 
-convertAss("example.ass");
 module.exports = convertAss;
