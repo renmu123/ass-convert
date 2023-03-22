@@ -22,6 +22,8 @@ Options:
 -o, --output <type> 输出文件路径
 -d, --duration <number> 持续时间（秒） (default: 5)
 -r, --replaceSource 替换源文件 (default: false)
+-gdi --genDanmukuImage 生成高能弹幕图片,
+-in --interval 生成高能弹幕图片的间隔（秒） (default: 30)
 -h, --help display help for command
 ```
 

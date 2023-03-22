@@ -7,7 +7,7 @@ program
   .option("-d, --duration <number>", "持续时间（秒）", 5)
   .option("-r, --replaceSource", "替换源文件", false)
   .option("-gdi, --genDanmukuImage", "生成高能弹幕图片", false)
-  .option("-in, --interval <number>", "生成高能弹幕图片的间隔", 5);
+  .option("-in, --interval <number>", "生成高能弹幕图片的间隔", 30);
 
 program.parse();
 

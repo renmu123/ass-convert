@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const { createCanvas, loadImage } = require("canvas");
 
 const { parse, stringify, compile, decompile } = require("ass-compiler");
+const { drawSmoothLineChart } = require("./draw.js");
 
 const groupBy = (arr, func) => {
   const map = new Map();
@@ -118,7 +120,7 @@ const generateDanmakuImage = (
   input,
   output,
   options = {
-    interval: 5,
+    interval: 30,
   }
 ) => {
   let outputPath = output;
@@ -134,22 +136,18 @@ const generateDanmakuImage = (
       assData["dialogues"],
       (item) => Math.floor(item.start / options.interval) * options.interval
     )
-  ).map(([key, values]) => {
+  ).map(([key, items]) => {
     return {
       time: key,
-      num: values.length,
+      value: items.length,
     };
   });
 
-  console.log(
-    items.reduce((acc, cur) => {
-      acc += cur.num;
-      return acc;
-    }, 0)
-  );
-
-  console.log(items);
-  fs.writeFileSync("ppp.json", JSON.stringify(items), "utf8");
+  let canvas = createCanvas(1080, 40);
+  canvas = drawSmoothLineChart(items, canvas, 1080, 40);
+  const out = fs.createWriteStream(__dirname + "/test.png");
+  const stream = canvas.createPNGStream();
+  stream.pipe(out);
 };
 
 module.exports = { convertAss, generateDanmakuImage };
