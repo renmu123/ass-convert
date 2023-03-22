@@ -1,0 +1,65 @@
+<html>
+  <!-- <canvas id="myCanvas" width="1080" height="300"></canvas> -->
+  <div id="container"></div>
+
+  <script>
+    const drawLine = (ctx, x1, y1, x2, y2, color) => {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    };
+
+    const genLine = (width, height) => {
+      const canvas = document.createElement("canvas");
+      canvas.id = "myCanvas";
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+
+      // 绘制数据点
+      const data = [
+        { value: 10, color: "red" },
+        { value: 20, color: "blue" },
+        { value: 30, color: "blue" },
+        { value: 21, color: "blue" },
+        { value: 50, color: "blue" },
+        { value: 16, color: "blue" },
+        { value: 6, color: "blue" },
+        { value: 47, color: "red" },
+      ];
+
+      const length = data.length;
+      const maxValue = Math.max(...data.map((item) => item.value));
+      const xRation = width / (length - 1);
+      const yRatio = height / maxValue;
+
+      // 绘制连线
+      ctx.beginPath();
+      for (let i = 0; i < data.length; i++) {
+        if (i === 0) {
+          continue;
+        }
+
+        const item = data[i];
+        const lastItem = data[i - 1];
+
+        const x = (i - 1) * xRation;
+        const y = height - lastItem.value * yRatio;
+
+        const x1 = i * xRation;
+        const y1 = height - item.value * yRatio;
+        console.log(x, y, x1, y1);
+
+        drawLine(ctx, x, y, x1, y1, lastItem.color);
+      }
+
+      const container = document.getElementById("container");
+      container.appendChild(canvas);
+    };
+
+    genLine(1920, 300);
+  </script>
+</html>

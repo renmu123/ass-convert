@@ -62,6 +62,7 @@ const handleMessageBox = (items, options) => {
   return newItems;
 };
 
+// 弹幕转换
 const convertAss = (
   input,
   output = undefined,
@@ -112,4 +113,43 @@ const convertAss = (
   fs.writeFileSync(outputPath, newAssContent, "utf8");
 };
 
-module.exports = convertAss;
+// 生成高能弹幕图片
+const generateDanmakuImage = (
+  input,
+  output,
+  options = {
+    interval: 5,
+  }
+) => {
+  let outputPath = output;
+
+  // 读取Ass文件
+  const assContent = fs.readFileSync(input, "utf8");
+
+  // 解析Ass文件
+  const assData = compile(assContent);
+
+  const items = Array.from(
+    groupBy(
+      assData["dialogues"],
+      (item) => Math.floor(item.start / options.interval) * options.interval
+    )
+  ).map(([key, values]) => {
+    return {
+      time: key,
+      num: values.length,
+    };
+  });
+
+  console.log(
+    items.reduce((acc, cur) => {
+      acc += cur.num;
+      return acc;
+    }, 0)
+  );
+
+  console.log(items);
+  fs.writeFileSync("ppp.json", JSON.stringify(items), "utf8");
+};
+
+module.exports = { convertAss, generateDanmakuImage };
