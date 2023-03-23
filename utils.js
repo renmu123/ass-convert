@@ -123,7 +123,7 @@ const generateDanmakuImage = (
     interval: 30,
   }
 ) => {
-  let outputPath = output;
+  let outputPath = output ?? "danmakuLine.png";
 
   // 读取Ass文件
   const assContent = fs.readFileSync(input, "utf8");
@@ -143,9 +143,9 @@ const generateDanmakuImage = (
     };
   });
 
-  let canvas = createCanvas(1080, 40);
-  canvas = drawSmoothLineChart(items, canvas, 1080, 40);
-  const out = fs.createWriteStream(__dirname + "/test.png");
+  let canvas = createCanvas(1920, 40);
+  canvas = drawSmoothLineChart(items, canvas, 1920, 40);
+  const out = fs.createWriteStream(outputPath);
   const stream = canvas.createPNGStream();
   stream.pipe(out);
 };

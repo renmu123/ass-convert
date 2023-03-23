@@ -1,55 +1,8 @@
-// 生成平滑曲线
-function smoothCurve(points, tension) {
-  var len = points.length;
-  var x = new Array(len);
-  var y = new Array(len);
-  var result = new Array(len);
-  var t1x, t2x, t1y, t2y, c1, c2, c3, c4;
-  for (var i = 0; i < len; i++) {
-    x[i] = points[i].x;
-    y[i] = points[i].y;
-  }
-  for (var i = 1; i < len - 1; i++) {
-    t1x = (x[i + 1] - x[i - 1]) * tension;
-    t2x = (x[i + 2] - x[i]) * tension;
-    t1y = (y[i + 1] - y[i - 1]) * tension;
-    t2y = (y[i + 2] - y[i]) * tension;
-    c1 =
-      2 * Math.pow(x[i] - x[i - 1], 2) +
-      3 * Math.pow(x[i - 1] - x[i], 2) * (x[i] - x[i - 1]);
-    c2 =
-      3 * Math.pow(x[i] - x[i - 1], 2) +
-      2 * Math.pow(x[i - 1] - x[i], 2) * (x[i] - x[i - 1]);
-    c3 =
-      2 * Math.pow(x[i + 1] - x[i], 2) +
-      3 * Math.pow(x[i] - x[i + 1], 2) * (x[i + 1] - x[i]);
-    c4 =
-      3 * Math.pow(x[i + 1] - x[i], 2) +
-      2 * Math.pow(x[i] - x[i + 1], 2) * (x[i + 1] - x[i]);
-    x[i] = (t1x * c1 + t2x * c2) / (c1 + c2);
-    c1 =
-      2 * Math.pow(y[i] - y[i - 1], 2) +
-      3 * Math.pow(y[i - 1] - y[i], 2) * (y[i] - y[i - 1]);
-    c2 =
-      3 * Math.pow(y[i] - y[i - 1], 2) +
-      2 * Math.pow(y[i - 1] - y[i], 2) * (y[i] - y[i - 1]);
-    c3 =
-      2 * Math.pow(y[i + 1] - y[i], 2) +
-      3 * Math.pow(y[i] - y[i + 1], 2) * (y[i + 1] - y[i]);
-    c4 =
-      3 * Math.pow(y[i + 1] - y[i], 2) +
-      2 * Math.pow(y[i] - y[i + 1], 2) * (y[i + 1] - y[i]);
-    y[i] = (t1y * c1 + t2y * c2) / (c1 + c2);
-  }
-  for (var i = 0; i < len; i++) {
-    result[i] = { x: x[i], y: y[i] };
-  }
-  return result;
-}
 // 绘制平滑曲线
-function drawSmoothCurve(ctx, points, tension) {
+function drawSmoothCurve(ctx, points, color) {
   var len = points.length;
-  var result = smoothCurve(points, tension);
+  ctx.strokeStyle = "#333333";
+
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
   for (var i = 1; i < len - 2; i++) {
@@ -93,15 +46,10 @@ function drawAxis() {
   ctx.lineTo(200, 300);
   ctx.stroke();
 }
-// drawAxis();
-// drawCurve(points);
-// drawPoints(points);
-// drawSmoothCurve(points, tension);
 
 // 绘制平滑折线图
-function drawSmoothLineChart(data, canvas, width, height) {
+function drawSmoothLineChart(data, canvas, width, height, color = "#333333") {
   const ctx = canvas.getContext("2d");
-  const tension = 0.4;
 
   const length = data.length;
   const maxValue = Math.max(...data.map((item) => item.value));
@@ -119,7 +67,7 @@ function drawSmoothLineChart(data, canvas, width, height) {
     points.push({ x: x, y: y });
   }
 
-  drawSmoothCurve(ctx, points, tension);
+  drawSmoothCurve(ctx, points, color);
   return canvas;
 }
 
