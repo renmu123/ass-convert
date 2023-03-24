@@ -6,10 +6,10 @@ program
   .option("-o, --output <type>", "输出文件路径")
   .option("-d, --duration <number>", "持续时间（秒）", 5)
   .option("-r, --replaceSource", "替换源文件", false)
-  .option("-gdi, --genDanmukuImage", "生成高能弹幕图片", false)
-  .option("-c, --color <type>", "弹幕图片颜色", "#333333")
-  .option("-fc, --fillColor <type>", "弹幕图片填充颜色")
-  .option("-in, --interval <number>", "生成高能弹幕图片的间隔", 30);
+  .option("-gdi, --genDanmukuImage", "生成高能弹幕进度条", false)
+  .option("-c, --color <type>", "高能弹幕进度条颜色", "#333333")
+  .option("-fc, --fillColor <type>", "高能弹幕进度条填充颜色")
+  .option("-in, --interval <number>", "生成高能弹幕进度条的间隔", 30);
 
 program.parse();
 

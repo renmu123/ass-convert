@@ -22,8 +22,10 @@ Options:
 -o, --output <type> 输出文件路径
 -d, --duration <number> 持续时间（秒） (default: 5)
 -r, --replaceSource 替换源文件 (default: false)
--gdi --genDanmukuImage 生成高能弹幕图片,
--in --interval 生成高能弹幕图片的间隔（秒） (default: 30)
+-gdi --genDanmukuImage 生成高能弹幕进度条,
+-in --interval 生成高能弹幕今进度条的间隔（秒） (default: 30)
+-c --color 高能弹幕进度条颜色 (default: #333333)
+-fc --fillColor 高能弹幕进度条填充颜色
 -h, --help display help for command
 ```
 
