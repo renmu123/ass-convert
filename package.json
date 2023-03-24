@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pkg . --out-path ./dist"
+    "build": "pkg ."
   },
   "bin": {
     "myprogram": "./index.js"
@@ -18,5 +18,14 @@
   },
   "devDependencies": {
     "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "outputPath": "dist",
+    "targets": [
+      "node18-win-x64"
+    ],
+    "assets": [
+      "./node_modules/canvas/build/Release/**/*"
+    ]
   }
 }
