@@ -143,8 +143,15 @@ const generateDanmakuImage = (
     };
   });
 
-  let canvas = createCanvas(1920, 40);
-  canvas = drawSmoothLineChart(items, canvas, 1920, 40);
+  let canvas = createCanvas(1920, 60);
+  canvas = drawSmoothLineChart(
+    items,
+    canvas,
+    1920,
+    60,
+    options.color,
+    options.fillColor
+  );
   const out = fs.createWriteStream(outputPath);
   const stream = canvas.createPNGStream();
   stream.pipe(out);

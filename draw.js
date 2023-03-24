@@ -1,7 +1,11 @@
 // 绘制平滑曲线
-function drawSmoothCurve(ctx, points, color) {
+function drawSmoothCurve(ctx, points, color, fillColor) {
   var len = points.length;
-  ctx.strokeStyle = "#333333";
+  ctx.strokeStyle = color;
+
+  if (fillColor) {
+    ctx.fillStyle = color;
+  }
 
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
@@ -17,6 +21,7 @@ function drawSmoothCurve(ctx, points, color) {
     points[i + 1].y
   );
   ctx.stroke();
+  ctx.fill();
 }
 // 绘制原始曲线
 function drawCurve(points) {
@@ -48,7 +53,14 @@ function drawAxis() {
 }
 
 // 绘制平滑折线图
-function drawSmoothLineChart(data, canvas, width, height, color = "#333333") {
+function drawSmoothLineChart(
+  data,
+  canvas,
+  width,
+  height,
+  color = "#333333",
+  fillColor = undefined
+) {
   const ctx = canvas.getContext("2d");
 
   const length = data.length;
@@ -67,7 +79,7 @@ function drawSmoothLineChart(data, canvas, width, height, color = "#333333") {
     points.push({ x: x, y: y });
   }
 
-  drawSmoothCurve(ctx, points, color);
+  drawSmoothCurve(ctx, points, color, fillColor);
   return canvas;
 }
 
