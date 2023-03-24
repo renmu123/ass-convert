@@ -1,27 +1,38 @@
+const fs = require("fs");
+const { CanvasRenderingContext2D } = require("canvas");
+const { polyfillPath2D } = require("path2d-polyfill");
+
+global.CanvasRenderingContext2D = CanvasRenderingContext2D;
+polyfillPath2D(global);
+
 // 绘制平滑曲线
-function drawSmoothCurve(ctx, points, color, fillColor) {
+function drawSmoothCurve(ctx, points, width, height, color, fillColor) {
   var len = points.length;
   ctx.strokeStyle = color;
 
   if (fillColor) {
-    ctx.fillStyle = color;
+    ctx.fillStyle = fillColor;
   }
 
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
+  let region = new Path2D();
+  region.moveTo(points[0].x, points[0].y);
   for (var i = 1; i < len - 2; i++) {
     var xc = (points[i].x + points[i + 1].x) / 2;
     var yc = (points[i].y + points[i + 1].y) / 2;
-    ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    region.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
   }
-  ctx.quadraticCurveTo(
+  region.quadraticCurveTo(
     points[i].x,
     points[i].y,
     points[i + 1].x,
     points[i + 1].y
   );
-  ctx.stroke();
-  ctx.fill();
+
+  region.lineTo(points[i + 1].x, height);
+  region.lineTo(0, height);
+  region.closePath();
+
+  ctx.fill(region);
 }
 // 绘制原始曲线
 function drawCurve(points) {
@@ -65,6 +76,7 @@ function drawSmoothLineChart(
 
   const length = data.length;
   const maxValue = Math.max(...data.map((item) => item.value));
+  const minValue = Math.min(...data.map((item) => item.value));
   const xRation = width / (length - 1);
   const yRatio = height / maxValue;
 
@@ -79,7 +91,7 @@ function drawSmoothLineChart(
     points.push({ x: x, y: y });
   }
 
-  drawSmoothCurve(ctx, points, color, fillColor);
+  drawSmoothCurve(ctx, points, width, height, color, fillColor);
   return canvas;
 }
 
