@@ -140,21 +140,25 @@ const generateDanmakuImage = (
     return {
       time: key,
       value: items.length,
+      color: options.color,
     };
   });
 
-  let canvas = createCanvas(1920, 60);
-  canvas = drawSmoothLineChart(
-    items,
-    canvas,
-    1920,
-    60,
-    options.color,
-    options.fillColor
-  );
-  const out = fs.createWriteStream(outputPath);
-  const stream = canvas.createPNGStream();
-  stream.pipe(out);
+  for (var i = 0; i < items.length; i++) {
+    items[i].color = options.fillColor;
+
+    let canvas = createCanvas(1920, 60);
+    canvas = drawSmoothLineChart(items, canvas, 1920, 60);
+    if (!fs.existsSync(options.output)) {
+      fs.mkdirSync(options.output);
+    }
+    const out = fs.createWriteStream(
+      path.join(options.output, `${String(i).padStart(4, "0")}.png`)
+    );
+
+    const stream = canvas.createPNGStream();
+    stream.pipe(out);
+  }
 };
 
 module.exports = { convertAss, generateDanmakuImage };

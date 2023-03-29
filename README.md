@@ -24,12 +24,26 @@ Options:
 -r, --replaceSource 替换源文件 (default: false)
 -gdi --genDanmukuImage 生成高能弹幕进度条,
 -in --interval 生成高能弹幕今进度条的间隔（秒） (default: 30)
--c --color 高能弹幕进度条颜色 (default: #333333)
--fc --fillColor 高能弹幕进度条填充颜色
+-c --color 高能弹幕进度条颜色 (default: #f9f5f3)
+-fc --fillColor 高能弹幕进度条已读颜色 (default: #333333)
 -h, --help display help for command
 ```
 
+# 例子
+
+## 生成修改后的弹幕
+
+`node index.js -i example.ass -r`
+
+## 生成高能进度条
+
+`node index.js -gdi -in 30 -i example.ass -o example`
+
 # 更新记录
+
+# 1.2.2
+
+1. 高能进度条样式修改，支持按进度分割生成系列图片
 
 # 1.2.1
 

@@ -6,33 +6,24 @@ global.CanvasRenderingContext2D = CanvasRenderingContext2D;
 polyfillPath2D(global);
 
 // 绘制平滑曲线
-function drawSmoothCurve(ctx, points, width, height, color, fillColor) {
+function drawSmoothCurve(ctx, points, color) {
   var len = points.length;
-  ctx.strokeStyle = color;
 
-  if (fillColor) {
-    ctx.fillStyle = fillColor;
-  }
+  let lastX = points[0].x;
+  let lastY = points[0].y;
+  for (var i = 1; i < len - 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
 
-  let region = new Path2D();
-  region.moveTo(points[0].x, points[0].y);
-  for (var i = 1; i < len - 2; i++) {
+    ctx.strokeStyle = points[i].color;
     var xc = (points[i].x + points[i + 1].x) / 2;
     var yc = (points[i].y + points[i + 1].y) / 2;
-    region.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+
+    ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    lastX = xc;
+    lastY = yc;
+    ctx.stroke();
   }
-  region.quadraticCurveTo(
-    points[i].x,
-    points[i].y,
-    points[i + 1].x,
-    points[i + 1].y
-  );
-
-  region.lineTo(points[i + 1].x, height);
-  region.lineTo(0, height);
-  region.closePath();
-
-  ctx.fill(region);
 }
 // 绘制原始曲线
 function drawCurve(points) {
@@ -64,14 +55,7 @@ function drawAxis() {
 }
 
 // 绘制平滑折线图
-function drawSmoothLineChart(
-  data,
-  canvas,
-  width,
-  height,
-  color = "#333333",
-  fillColor = undefined
-) {
+function drawSmoothLineChart(data, canvas, width, height) {
   const ctx = canvas.getContext("2d");
 
   const length = data.length;
@@ -88,10 +72,14 @@ function drawSmoothLineChart(
 
     const x = i * xRation;
     const y = height - item.value * yRatio;
-    points.push({ x: x, y: y });
+    points.push({
+      x: x,
+      y: y,
+      color: item.color ?? "#333333",
+    });
   }
 
-  drawSmoothCurve(ctx, points, width, height, color, fillColor);
+  drawSmoothCurve(ctx, points);
   return canvas;
 }
 
