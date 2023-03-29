@@ -26,6 +26,7 @@ Options:
 -in --interval 生成高能弹幕今进度条的间隔（秒） (default: 30)
 -c --color 高能弹幕进度条颜色 (default: #f9f5f3)
 -fc --fillColor 高能弹幕进度条已读颜色 (default: #333333)
+-report --report 生成弹幕报告 (default:false)
 -h, --help display help for command
 ```
 
@@ -39,7 +40,15 @@ Options:
 
 `node index.js -gdi -in 30 -i example.ass -o example`
 
+## 生成弹幕报告
+
+`node index.js --report -i example.ass -o report.txt -in 60 - o report.txt`
+
 # 更新记录
+
+# 1.3.0
+
+生成弹幕报告
 
 # 1.2.2
 

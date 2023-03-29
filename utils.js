@@ -123,8 +123,6 @@ const generateDanmakuImage = (
     interval: 30,
   }
 ) => {
-  let outputPath = output ?? "danmakuLine.png";
-
   // 读取Ass文件
   const assContent = fs.readFileSync(input, "utf8");
 
@@ -161,4 +159,58 @@ const generateDanmakuImage = (
   }
 };
 
-module.exports = { convertAss, generateDanmakuImage };
+// 生成弹幕报告
+const generateReport = (input, output, options = {}) => {
+  // 读取Ass文件
+  const assContent = fs.readFileSync(input, "utf8");
+
+  // 解析Ass文件
+  const assData = compile(assContent);
+
+  const items = Array.from(
+    groupBy(
+      assData["dialogues"],
+      (item) => Math.floor(item.start / options.interval) * options.interval
+    )
+  ).map(([key, items]) => {
+    return {
+      time: key,
+      value: items.length,
+    };
+  });
+  // 获取最多的弹幕数量的前几个时间段
+  const topItems = items
+    .sort((a, b) => b.value - a.value)
+    .slice(0, options.top || 5);
+
+  const length = assData["dialogues"].length;
+  const messageLength =
+    assData["dialogues"].filter((item) => item.style === "message_box").length /
+    5;
+
+  const report = `弹幕总数：${length}
+sc总数：${messageLength}
+弹幕最多的时间段：
+${topItems
+  .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
+  .join("\n")}
+    `;
+
+  console.log(report);
+  if (output) {
+    fs.writeFileSync(output, report, "utf8");
+  }
+};
+
+const formatTime = (time) => {
+  const hours = Math.floor(time / 3600);
+  time = time % 3600;
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+    2,
+    "0"
+  )}:${String(seconds).padStart(2, "0")}`;
+};
+
+module.exports = { convertAss, generateDanmakuImage, generateReport };
