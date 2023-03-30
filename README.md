@@ -42,7 +42,7 @@ Options:
 
 ## 生成弹幕报告
 
-`node index.js --report -i example.ass -o report.txt -in 60 - o report.txt`
+`node index.js --report -i example.ass -in 60 - o report.txt`
 
 # 更新记录
 
