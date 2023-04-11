@@ -186,9 +186,9 @@ const generateReport = (input, output, options = {}) => {
   const parser = new XMLParser();
   let jObj = parser.parse(XMLdata);
   // console.log(jObj);
-  const danmukuLength = jObj.i.d.length;
-  const scLength = jObj.i.sc.length;
-  const guardLength = jObj.i.gift.length;
+  const danmukuLength = jObj?.i?.d?.length || 0;
+  const scLength = jObj?.i?.sc?.length || 0;
+  const guardLength = jObj?.i?.gift?.length || 0;
 
   // 解析Ass文件
   const assContent = fs.readFileSync(options.input2, "utf8");
