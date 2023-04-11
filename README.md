@@ -20,7 +20,7 @@ Usage: node index.js [options]
 Options:
 -i, --input <type> 输入文件路径
 -o, --output <type> 输出文件路径
--d, --duration <number> 持续时间（秒） (default: 5)
+-d, --duration <number> SC持续时间（秒） (default: 5)
 -r, --replaceSource 替换源文件 (default: false)
 -gdi --genDanmukuImage 生成高能弹幕进度条,
 -in --interval 生成高能弹幕今进度条的间隔（秒） (default: 30)
@@ -28,13 +28,14 @@ Options:
 -fc --fillColor 高能弹幕进度条已读颜色 (default: #333333)
 -report --report 生成弹幕报告 (default:false)
 -h, --help display help for command
+-cg --cleanGift 清除礼物弹幕，如果你在弹幕姬开启了礼物记录(default: true，不包含sc)
 ```
 
 # 例子
 
 ## 生成修改后的弹幕
 
-`node index.js -i example.ass -r`
+`node index.js -i example.ass -r -cg`
 
 ## 生成高能进度条
 
@@ -45,6 +46,10 @@ Options:
 `node index.js --report -i example.ass -in 60 - o report.txt`
 
 # 更新记录
+
+# 1.4.0
+
+新增清除礼物参数
 
 # 1.3.0
 

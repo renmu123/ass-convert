@@ -71,6 +71,7 @@ const convertAss = (
   options = {
     duration: 5,
     replaceSource: false,
+    cleanGift: true,
   }
 ) => {
   let outputPath = output;
@@ -91,18 +92,35 @@ const convertAss = (
   let items = [];
   // 移除message_box的动画样式
   for (const item of assData["dialogues"]) {
-    if (item.style === "message_box" && item.clip) {
-      continue;
-    }
-    if (item.style === "message_box" && item.move) {
-      item.end = item.start + options.duration;
-      item.pos = {
-        x: item.move.x2,
-        y: item.move.y2,
-      };
+    if (item.style === "message_box") {
+      if (item.clip) {
+        continue;
+      }
+      if (item.move) {
+        item.end = item.start + options.duration;
+        item.pos = {
+          x: item.move.x2,
+          y: item.move.y2,
+        };
 
-      delete item.move;
+        delete item.move;
+      }
+      // 移除礼物相关弹幕
+      if (options.cleanGift) {
+        let flag = false;
+        (item?.slices || []).map((slice) => {
+          (slice?.fragments || []).map((fragment) => {
+            if (fragment?.tag?.c1 === "BCACF7") {
+              flag = true;
+            }
+          });
+        });
+        if (flag) {
+          continue;
+        }
+      }
     }
+
     items.push(item);
   }
 

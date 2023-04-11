@@ -14,7 +14,8 @@ program
   .option("-c, --color <type>", "高能弹幕进度条颜色", "#f9f5f3")
   .option("-fc, --fillColor <type>", "高能弹幕进度条填充颜色", "#333333")
   .option("-in, --interval <number>", "生成高能弹幕进度条的间隔", 30)
-  .option("-report, --report", "生成弹幕报告", false);
+  .option("-report, --report", "生成弹幕报告", false)
+  .option("-cg, --cleanGift", "清除礼物", true);
 
 program.parse();
 
