@@ -32,11 +32,9 @@ const handleMessageBox = (items, options) => {
 
   // Loop through grouped dialogues
   for (let i = 1; i < groupedMessageDialogues.length; i++) {
-    const [lastDialogueStart, lastDialogueEnd] = groupedMessageDialogues[
-      i - 1
-    ][0]
-      .split("-")
-      .map(Number);
+    const lastDialogue = groupedMessageDialogues[i - 1][1][0];
+    const lastDialogueStart = lastDialogue.start;
+    const lastDialogueEnd = lastDialogue.end;
 
     const [currentDialogueStart] = groupedMessageDialogues[i][0]
       .split("-")
@@ -45,13 +43,14 @@ const handleMessageBox = (items, options) => {
 
     // If current dialogue start time is between last dialogue start and end times
     if (
-      currentDialogueStart > lastDialogueStart &&
-      currentDialogueStart < lastDialogueEnd
+      (currentDialogueStart > lastDialogueStart &&
+        currentDialogueStart < lastDialogueEnd) ||
+      currentDialogueStart < lastDialogueStart
     ) {
       // Update current dialogue start and end times
       currentDialogues.forEach((dialogue) => {
-        dialogue.start = lastDialogueEnd + 1;
-        dialogue.end = lastDialogueEnd + options.duration + 1;
+        dialogue.start = lastDialogueEnd;
+        dialogue.end = lastDialogueEnd + options.duration;
       });
     }
   }
