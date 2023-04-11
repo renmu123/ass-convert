@@ -15,6 +15,7 @@ program
   .option("-fc, --fillColor <type>", "高能弹幕进度条填充颜色", "#333333")
   .option("-in, --interval <number>", "生成高能弹幕进度条的间隔", 30)
   .option("-report, --report", "生成弹幕报告", false)
+  .option("-i2, --input2 <type>", "生成弹幕报告时输入的ass文件")
   .option("-cg, --cleanGift", "清除礼物", true);
 
 program.parse();

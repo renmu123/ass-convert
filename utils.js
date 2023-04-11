@@ -5,6 +5,8 @@ const { createCanvas, loadImage } = require("canvas");
 const { parse, stringify, compile, decompile } = require("ass-compiler");
 const { drawSmoothLineChart } = require("./draw.js");
 
+const { XMLParser } = require("fast-xml-parser");
+
 const groupBy = (arr, func) => {
   const map = new Map();
   arr.forEach((item) => {
@@ -180,9 +182,16 @@ const generateDanmakuImage = (
 // 生成弹幕报告
 const generateReport = (input, output, options = {}) => {
   // 读取Ass文件
-  const assContent = fs.readFileSync(input, "utf8");
+  const XMLdata = fs.readFileSync(input, "utf8");
+  const parser = new XMLParser();
+  let jObj = parser.parse(XMLdata);
+  // console.log(jObj);
+  const danmukuLength = jObj.i.d.length;
+  const scLength = jObj.i.sc.length;
+  const guardLength = jObj.i.gift.length;
 
   // 解析Ass文件
+  const assContent = fs.readFileSync(options.input2, "utf8");
   const assData = compile(assContent);
 
   const items = Array.from(
@@ -200,19 +209,15 @@ const generateReport = (input, output, options = {}) => {
   const topItems = items
     .sort((a, b) => b.value - a.value)
     .slice(0, options.top || 5);
+  // console.log(items);
 
-  const length = assData["dialogues"].length;
-  const messageLength =
-    assData["dialogues"].filter((item) => item.style === "message_box").length /
-    5;
-
-  const report = `弹幕总数：${length}
-sc总数：${messageLength}
+  const report = `弹幕总数：${danmukuLength}
+sc总数：${scLength}
+礼物总数：${guardLength}
 弹幕最多的时间段：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
-  .join("\n")}
-    `;
+  .join("\n")}`;
 
   console.log(report);
   if (output) {
