@@ -194,18 +194,49 @@ const generateDanmakuImage = (
   }
 };
 
+// 礼物价格计算，最后返回的是金仓鼠数量
+// <gift>，分别金瓜子和银瓜子礼物，银瓜子礼物不算入收入。金瓜子现在又成为金仓鼠，1000金仓鼠可兑换1元人民币，@_raw.total_coin 为这条总金瓜子数量
+// @_raw.coin_type === "silver" 银瓜子礼物
+// @_raw.coin_type === "gold" 金瓜子礼物
+// <sc> @_price 为这条sc的人民币价格，换算成金瓜子需要乘1000
+// <guard> @_raw.price*@_raw.num，单位金瓜子
+const calculateGiftPrice = (jObj) => {
+  const gift = jObj?.i?.gift || [];
+  const sc = jObj?.i?.sc || [];
+  const guard = jObj?.i?.guard || [];
+
+  const giftPrice = gift.reduce((acc, cur) => {
+    const raw = JSON.parse(cur["@_raw"]);
+    if (raw.coin_type === "gold") {
+      console.log(raw.coin_typ, raw);
+
+      return acc + raw.total_coin;
+    }
+    return acc;
+  }, 0);
+
+  const scPrice = sc.reduce((acc, cur) => {
+    return acc + cur["@_price"] * 1000;
+  }, 0);
+
+  const guardPrice = guard.reduce((acc, cur) => {
+    const raw = JSON.parse(cur["@_raw"]);
+    return acc + raw.price * raw.num;
+  }, 0);
+  console.log(giftPrice / 1000, scPrice / 1000, guardPrice / 1000);
+
+  return giftPrice + scPrice + guardPrice;
+};
+
 // 生成弹幕报告
 const generateReport = (input, output, options = {}) => {
   // 读取Ass文件
   const XMLdata = fs.readFileSync(input, "utf8");
   const parser = new XMLParser({ ignoreAttributes: false });
   let jObj = parser.parse(XMLdata);
-  // console.log(jObj);
-  console.log(jObj?.i?.guard);
   const danmukuLength = jObj?.i?.d?.length || 0;
   const scLength = jObj?.i?.sc?.length || 0;
   const guardLength = jObj?.i?.guard?.length || 0;
-  const giftLength = jObj?.i?.gift?.length || 0;
 
   const uniqMember = uniqBy(
     [
@@ -216,14 +247,8 @@ const generateReport = (input, output, options = {}) => {
     ],
     "@_user"
   ).length;
-  // "@_price"
-
-  // 礼物价格计算
-  // <gift>，分别金瓜子和银瓜子礼物，银瓜子礼物不算入收入。金瓜子现在又成为金仓鼠，1000金仓鼠可兑换1元人民币，@_raw.total_coin 为这条总金仓鼠数量
-  // @_raw.coin_type === "silver" 银瓜子礼物
-  // @_raw.coin_type === "gold" 金瓜子礼物
-  // <sc> @_price 为这条sc的人民币价格，换算成金仓鼠需要乘1000
-  // <guard> @_raw.price*@_raw.num，单位时金仓鼠
+  // 价格计算
+  const giftPrice = calculateGiftPrice(jObj) / 1000;
 
   // 解析Ass文件
   const assContent = fs.readFileSync(options.input2, "utf8");
@@ -250,7 +275,7 @@ const generateReport = (input, output, options = {}) => {
 活跃人数：${uniqMember}
 sc总数：${scLength}
 上船总数：${guardLength}
-礼物总数：${giftLength}
+礼物收入：${giftPrice}元
 弹幕最多的时间段：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
@@ -259,10 +284,6 @@ ${topItems
   console.log(report);
   if (output) {
     fs.writeFileSync(output, report, "utf8");
-
-    // const builder = new XMLBuilder();
-    // const xmlContent = builder.build(jObj);
-    // fs.writeFileSync("report.xml", xmlContent, "utf8");
   }
 };
 
