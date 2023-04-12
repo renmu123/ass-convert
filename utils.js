@@ -5,7 +5,7 @@ const { createCanvas, loadImage } = require("canvas");
 const { parse, stringify, compile, decompile } = require("ass-compiler");
 const { drawSmoothLineChart } = require("./draw.js");
 
-const { XMLParser } = require("fast-xml-parser");
+const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
 const groupBy = (arr, func) => {
   const map = new Map();
@@ -17,6 +17,22 @@ const groupBy = (arr, func) => {
     map.get(key).push(item);
   });
   return map;
+};
+
+const uniqBy = (arr, predicate) => {
+  const cb = typeof predicate === "function" ? predicate : (o) => o[predicate];
+
+  return [
+    ...arr
+      .reduce((map, item) => {
+        const key = item === null || item === undefined ? item : cb(item);
+
+        map.has(key) || map.set(key, item);
+
+        return map;
+      }, new Map())
+      .values(),
+  ];
 };
 
 const handleMessageBox = (items, options) => {
@@ -183,12 +199,32 @@ const generateDanmakuImage = (
 const generateReport = (input, output, options = {}) => {
   // 读取Ass文件
   const XMLdata = fs.readFileSync(input, "utf8");
-  const parser = new XMLParser();
+  const parser = new XMLParser({ ignoreAttributes: false });
   let jObj = parser.parse(XMLdata);
   // console.log(jObj);
+  console.log(jObj?.i?.guard);
   const danmukuLength = jObj?.i?.d?.length || 0;
   const scLength = jObj?.i?.sc?.length || 0;
-  const guardLength = jObj?.i?.gift?.length || 0;
+  const guardLength = jObj?.i?.guard?.length || 0;
+  const giftLength = jObj?.i?.gift?.length || 0;
+
+  const uniqMember = uniqBy(
+    [
+      ...(jObj?.i?.d || []),
+      ...(jObj?.i?.sc || []),
+      ...(jObj?.i?.gift || []),
+      ...(jObj?.i?.guard || []),
+    ],
+    "@_user"
+  ).length;
+  // "@_price"
+
+  // 礼物价格计算
+  // <gift>，分别金瓜子和银瓜子礼物，银瓜子礼物不算入收入。金瓜子现在又成为金仓鼠，1000金仓鼠可兑换1元人民币，@_raw.total_coin 为这条总金仓鼠数量
+  // @_raw.coin_type === "silver" 银瓜子礼物
+  // @_raw.coin_type === "gold" 金瓜子礼物
+  // <sc> @_price 为这条sc的人民币价格，换算成金仓鼠需要乘1000
+  // <guard> @_raw.price*@_raw.num，单位时金仓鼠
 
   // 解析Ass文件
   const assContent = fs.readFileSync(options.input2, "utf8");
@@ -212,8 +248,10 @@ const generateReport = (input, output, options = {}) => {
   // console.log(items);
 
   const report = `弹幕总数：${danmukuLength}
+活跃人数：${uniqMember}
 sc总数：${scLength}
-礼物总数：${guardLength}
+上船总数：${guardLength}
+礼物总数：${giftLength}
 弹幕最多的时间段：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
@@ -222,6 +260,10 @@ ${topItems
   console.log(report);
   if (output) {
     fs.writeFileSync(output, report, "utf8");
+
+    // const builder = new XMLBuilder();
+    // const xmlContent = builder.build(jObj);
+    // fs.writeFileSync("report.xml", xmlContent, "utf8");
   }
 };
 

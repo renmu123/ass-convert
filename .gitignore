@@ -1,3 +1,4 @@
 *.ass
 node_modules
 dist
+*.xml
