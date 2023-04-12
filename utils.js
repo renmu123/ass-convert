@@ -208,8 +208,6 @@ const calculateGiftPrice = (jObj) => {
   const giftPrice = gift.reduce((acc, cur) => {
     const raw = JSON.parse(cur["@_raw"]);
     if (raw.coin_type === "gold") {
-      console.log(raw.coin_typ, raw);
-
       return acc + raw.total_coin;
     }
     return acc;
@@ -269,7 +267,6 @@ const generateReport = (input, output, options = {}) => {
   const topItems = items
     .sort((a, b) => b.value - a.value)
     .slice(0, options.top || 5);
-  // console.log(items);
 
   const report = `弹幕总数：${danmukuLength}
 活跃人数：${uniqMember}
