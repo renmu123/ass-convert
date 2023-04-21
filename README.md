@@ -39,13 +39,15 @@ Options:
 
 ## 生成高能进度条
 
-`node index.js -gdi -in 30 -i example.ass -o example`
+`node index.js -gdi -in 30 -i example.ass -w 1920 -h 60 -o example`
 
 ## 生成弹幕报告
 
 `node index.js --report -i example.xml -i2 example.ass -in 60 -o report.txt`
 
 # 更新记录
+
+# 1.7.0 增加进度高宽高参数
 
 # 1.6.0
 

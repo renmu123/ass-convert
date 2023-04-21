@@ -156,6 +156,8 @@ const generateDanmakuImage = (
   output,
   options = {
     interval: 30,
+    height: 60,
+    width: 1920,
   }
 ) => {
   // 读取Ass文件
@@ -180,8 +182,8 @@ const generateDanmakuImage = (
   for (var i = 0; i < items.length; i++) {
     items[i].color = options.fillColor;
 
-    let canvas = createCanvas(1920, 60);
-    canvas = drawSmoothLineChart(items, canvas, 1920, 60);
+    let canvas = createCanvas(options.width, options.height);
+    canvas = drawSmoothLineChart(items, canvas, options.width, options.height);
     if (!fs.existsSync(options.output)) {
       fs.mkdirSync(options.output);
     }
