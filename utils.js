@@ -202,11 +202,7 @@ const generateDanmakuImage = (
 // @_raw.coin_type === "gold" 金瓜子礼物
 // <sc> @_price 为这条sc的人民币价格，换算成金瓜子需要乘1000
 // <guard> @_raw.price*@_raw.num，单位金瓜子
-const calculateGiftPrice = (jObj) => {
-  const gift = jObj?.i?.gift || [];
-  const sc = jObj?.i?.sc || [];
-  const guard = jObj?.i?.guard || [];
-
+const calculateGiftPrice = ({ gift, sc, guard }) => {
   const giftPrice = gift.reduce((acc, cur) => {
     const raw = JSON.parse(cur["@_raw"]);
     if (raw.coin_type === "gold") {
@@ -228,27 +224,64 @@ const calculateGiftPrice = (jObj) => {
   return giftPrice + scPrice + guardPrice;
 };
 
-// 生成弹幕报告
-const generateReport = (input, output, options = {}) => {
-  // 读取Ass文件
+const parseXmlObj = (input) => {
   const XMLdata = fs.readFileSync(input, "utf8");
   const parser = new XMLParser({ ignoreAttributes: false });
   let jObj = parser.parse(XMLdata);
-  const danmukuLength = jObj?.i?.d?.length || 0;
-  const scLength = jObj?.i?.sc?.length || 0;
-  const guardLength = jObj?.i?.guard?.length || 0;
+
+  let danmuku = jObj?.i?.d || [];
+  let sc = jObj?.i?.sc || [];
+  let guard = jObj?.i?.guard || [];
+  let gift = jObj?.i?.gift || [];
+
+  // 在只有一条时，会解析成object形式，这里统一转换成array
+  if (!Array.isArray(danmuku)) {
+    if (typeof danmuku === "object") {
+      danmuku = [danmuku];
+    } else {
+      danmuku = [];
+    }
+  }
+  if (!Array.isArray(sc)) {
+    if (typeof sc === "object") {
+      sc = [sc];
+    } else {
+      sc = [];
+    }
+  }
+  if (!Array.isArray(guard)) {
+    if (typeof guard === "object") {
+      guard = [guard];
+    } else {
+      guard = [];
+    }
+  }
+  if (!Array.isArray(gift)) {
+    if (typeof gift === "object") {
+      gift = [gift];
+    } else {
+      gift = [];
+    }
+  }
+
+  return { jObj, danmuku, sc, guard, gift };
+};
+
+// 生成弹幕报告
+const generateReport = (input, output, options = {}) => {
+  // 读取Ass文件
+  const { danmuku, sc, guard, gift } = parseXmlObj(input);
+
+  const danmukuLength = danmuku.length;
+  const scLength = sc.length;
+  const guardLength = guard.length;
 
   const uniqMember = uniqBy(
-    [
-      ...(jObj?.i?.d || []),
-      ...(jObj?.i?.sc || []),
-      ...(jObj?.i?.gift || []),
-      ...(jObj?.i?.guard || []),
-    ],
+    [...danmuku, ...sc, ...gift, ...guard],
     "@_user"
   ).length;
   // 价格计算
-  const giftPrice = calculateGiftPrice(jObj) / 1000;
+  const giftPrice = calculateGiftPrice({ sc, guard, gift }) / 1000;
 
   // 解析Ass文件
   const assContent = fs.readFileSync(options.input2, "utf8");
@@ -274,7 +307,7 @@ const generateReport = (input, output, options = {}) => {
 活跃人数：${uniqMember}
 sc总数：${scLength}
 上船总数：${guardLength}
-礼物收入：${giftPrice}元
+流水：${giftPrice}元
 弹幕最多的时间段：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
