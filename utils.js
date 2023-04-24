@@ -304,7 +304,7 @@ const generateReport = (input, output, options = {}) => {
     .slice(0, options.top || 5);
 
   const report = `弹幕总数：${danmukuLength}
-活跃人数：${uniqMember}
+互动人数：${uniqMember}
 sc总数：${scLength}
 上船总数：${guardLength}
 流水：${giftPrice}元
