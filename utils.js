@@ -280,6 +280,18 @@ const generateReport = (input, output, options = {}) => {
     [...danmuku, ...sc, ...gift, ...guard],
     "@_user"
   ).length;
+  // danmuku根据@_user进行groupby并统计数量，并取前5名
+  const danmukuGroupByUser = Array.from(
+    groupBy(danmuku, (item) => item["@_user"])
+  ).map(([key, items]) => {
+    return {
+      user: key,
+      value: items.length,
+    };
+  });
+  danmukuGroupByUser.sort((a, b) => b.value - a.value);
+  danmukuGroupByUser.splice(5);
+
   // 价格计算
   const giftPrice = calculateGiftPrice({ sc, guard, gift }) / 1000;
 
@@ -308,6 +320,11 @@ const generateReport = (input, output, options = {}) => {
 sc总数：${scLength}
 上船总数：${guardLength}
 流水：${giftPrice}元
+最能水弹幕：
+${danmukuGroupByUser
+  .map((item) => `用户：${item.user}，弹幕数量：${item.value}`)
+  .join("\n")}
+
 弹幕最多的时间段：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
