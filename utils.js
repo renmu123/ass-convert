@@ -196,7 +196,7 @@ const generateDanmakuImage = (
   }
 };
 
-// 礼物价格计算，最后返回的是金仓鼠数量
+// 礼物价格计算，最后返回的是人民币价格，单位元
 // <gift>，分别金瓜子和银瓜子礼物，银瓜子礼物不算入收入。金瓜子现在又成为金仓鼠，1000金仓鼠可兑换1元人民币，@_raw.total_coin 为这条总金瓜子数量
 // @_raw.coin_type === "silver" 银瓜子礼物
 // @_raw.coin_type === "gold" 金瓜子礼物
@@ -219,9 +219,8 @@ const calculateGiftPrice = ({ gift, sc, guard }) => {
     const raw = JSON.parse(cur["@_raw"]);
     return acc + raw.price * raw.num;
   }, 0);
-  console.log(giftPrice / 1000, scPrice / 1000, guardPrice / 1000);
 
-  return giftPrice + scPrice + guardPrice;
+  return (giftPrice + scPrice + guardPrice) / 1000;
 };
 
 const parseXmlObj = (input) => {
@@ -280,6 +279,7 @@ const generateReport = (input, output, options = {}) => {
     [...danmuku, ...sc, ...gift, ...guard],
     "@_user"
   ).length;
+
   // danmuku根据@_user进行groupby并统计数量，并取前5名
   const danmukuGroupByUser = Array.from(
     groupBy(danmuku, (item) => item["@_user"])
@@ -292,8 +292,29 @@ const generateReport = (input, output, options = {}) => {
   danmukuGroupByUser.sort((a, b) => b.value - a.value);
   danmukuGroupByUser.splice(5);
 
-  // 价格计算
-  const giftPrice = calculateGiftPrice({ sc, guard, gift }) / 1000;
+  // 礼物价格根据@_user进行groupby并统计数量，并取前5名
+  const priceDanmu = [
+    ...sc.map((item) => ({ ...item, type: "sc" })),
+    ...guard.map((item) => ({ ...item, type: "guard" })),
+    ...gift.map((item) => ({ ...item, type: "gift" })),
+  ];
+  const giftGroupByUser = Array.from(
+    groupBy(priceDanmu, (item) => item["@_user"])
+  ).map(([key, items]) => {
+    return {
+      user: key,
+      value: calculateGiftPrice({
+        gift: items.filter((item) => item.type === "gift"),
+        sc: items.filter((item) => item.type === "sc"),
+        guard: items.filter((item) => item.type === "guard"),
+      }),
+    };
+  });
+  giftGroupByUser.sort((a, b) => b.value - a.value);
+  giftGroupByUser.splice(5);
+
+  // 总流水计算
+  const giftPrice = calculateGiftPrice({ sc, guard, gift });
 
   // 解析Ass文件
   const assContent = fs.readFileSync(options.input2, "utf8");
@@ -320,12 +341,18 @@ const generateReport = (input, output, options = {}) => {
 sc总数：${scLength}
 上船总数：${guardLength}
 流水：${giftPrice}元
-最能水弹幕：
+
+富哥V我50：
+${giftGroupByUser
+  .map((item) => `用户：${item.user}，流水：${item.value}元`)
+  .join("\n")}
+
+谁是大水王：
 ${danmukuGroupByUser
   .map((item) => `用户：${item.user}，弹幕数量：${item.value}`)
   .join("\n")}
 
-弹幕最多的时间段：
+高能时刻：
 ${topItems
   .map((item) => `时间：${formatTime(item.time)}，弹幕数量：${item.value}`)
   .join("\n")}`;
