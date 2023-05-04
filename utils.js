@@ -238,21 +238,6 @@ const convertAss = (
       // 片哥屏蔽功能
       const filterFlag =
         filterData.filter((filterItem) => {
-          // if (
-          //   // filterItem.time === item.start &&
-          //   filterItem.text === item.slices[0].fragments[0].text &&
-          //   filterItem.text === "哔那玩小r道具闺密⩉I57泗ꗠ90窘"
-          // ) {
-          //   console.log(
-          //     item,
-          //     filterItem.text,
-          //     item.slices[0].fragments[0].text,
-          //     filterItem.text === item.slices[0].fragments[0].text,
-          //     filterItem.time,
-          //     item.start,
-          //     filterItem.time === item.start
-          //   );
-          // }
           return (
             filterItem.time === item.start &&
             filterItem.text === item.slices[0].fragments[0].text
@@ -260,7 +245,6 @@ const convertAss = (
         }).length > 0;
 
       if (filterFlag) {
-        // console.log(item.slices[0].fragments[0].text);
         continue;
       }
     }

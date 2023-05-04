@@ -37,29 +37,21 @@ Options:
 
 # 例子
 
-## 生成修改后的弹幕
+## 修改 SC 动画以及持续时间
 
-`node index.js -i example.ass -r -cg`
-
-## 生成高能进度条
-
-`node index.js -gdi -in 30 -i example.ass -w 1920 -h 60 -o example`
-
-## 生成弹幕报告
-
-`node index.js --report -i example.ass -i2 example.xml -in 60 -o report.txt`
+`node index.js assConvert -i example.ass -o example2.ass -cg -d 15`
 
 ## 片哥过滤功能
 
-`node index.js -i example.ass -i2 example.xml -o example2.ass -bl 1`
+`node index.js assConvert -i example.ass -i2 example.xml -o example2.ass -bl 1`
 
 某些人的直播间特别多的片哥，比如柯洁，所以特地写了一个片哥过滤功能，不同的片哥有不同的特征，大致有如下几种：
 
 1. 关键词中带有`伦乱,泗,𐊿`等违规文字以及某些谐音字来规避平台的检测
-2. 比如柯洁直播间的这种抽象片哥弹幕，`校园尚扪快餐获nl取站6k3w⦁C0𖬪`,`校园尚扪快餐获j5取站6k3w⦁C0𖬪`，特点是文字大致相同，但中间参杂了随机的英文字母或数字
+2. 比如一些抽象片哥弹幕，`校园尚扪快餐获nl取站6k3w⦁C0𖬪`,`校园尚扪快餐获j5取站6k3w⦁C0𖬪`，特点是文字大致相同，但中间参杂了随机的英文字母或数字
 3. 片哥的用户名一般以`bili_`开头
 
-根据这几个特征做了三个不同等级的屏蔽策略，防护程度以此上升，尽量不伤及正常弹幕，这个功能也不会影响统计功能。
+根据这几个特征做了三个不同等级的屏蔽策略，防护程度以此上升，尽量不伤及正常弹幕。
 PS：怎么还有复制片哥弹幕的
 
 ### 第一级
@@ -72,9 +64,21 @@ PS：怎么还有复制片哥弹幕的
 
 ### 第三级
 
-屏蔽所有以`bili_`开头的用户，杀得比较多，错杀范围较大。
+屏蔽所有以`bili_`开头的用户，对片哥杀得比较彻底，但错杀范围较大。
+
+## 生成高能进度条
+
+`node index.js genDanmukuImage -in 30 -i example.ass -w 1920 -h 60 -o example`
+
+## 生成弹幕报告
+
+`node index.js report -i example.ass -i2 example.xml -in 60 -o report.txt`
 
 # 更新记录
+
+# 2.0.0
+
+命令行更改
 
 # 1.9.0
 
