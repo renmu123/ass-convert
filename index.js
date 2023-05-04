@@ -18,7 +18,12 @@ program
   .option("-w, --width <number>", "生成高能弹幕进度条的高度", 1920)
   .option("-report, --report", "生成弹幕报告", false)
   .option("-i2, --input2 <type>", "生成弹幕报告时输入的ass文件")
-  .option("-cg, --cleanGift", "清除礼物", true);
+  .option("-cg, --cleanGift", "清除礼物", true)
+  .option(
+    "-bl, --blockLevel <number>",
+    "片哥过滤机制，详细见文档，可选参数为1,2,3",
+    0
+  );
 
 program.parse();
 
@@ -27,6 +32,7 @@ options.duration = Number(options.duration);
 options.interval = Number(options.interval);
 options.height = Number(options.height);
 options.width = Number(options.width);
+options.blockLevel = Number(options.blockLevel);
 
 if (options.genDanmukuImage) {
   generateDanmakuImage(options.input, options.output, options);

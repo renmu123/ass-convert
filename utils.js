@@ -81,14 +81,105 @@ const handleMessageBox = (items, options) => {
   return newItems;
 };
 
+// 屏蔽卖片哥
+const block = (options) => {
+  let filterData = [];
+  const { danmuku } = parseXmlObj(options.input2);
+  if (options.blockLevel === 1) {
+    // 关键词移除
+    const blackWordList = ["伦乱", "泗", "𐊿", "Ӎ"];
+    filterData = danmuku
+      .filter(
+        (item) =>
+          blackWordList.filter((word) => {
+            return String(item["#text"]).includes(word);
+          }).length > 0
+      )
+      .map((item) => {
+        const time = item["@_p"].split(",")[0];
+        const seconds = time.split(".")[0];
+        const milliseconds = time.split(".")[1].slice(0, 2);
+
+        return {
+          text: String(item["#text"]),
+          user: String(item["@_user"]),
+          time: Number(`${seconds}.${milliseconds}`),
+        };
+      });
+  } else if (options.blockLevel === 2) {
+    // 文字字段中去除所有的英文以及数字字符后做统计弹幕次数
+    const textFilterDanmuku = danmuku
+      .map((item) => {
+        item["#text_compare"] = String(item["#text"]).replace(
+          /[a-zA-Z0-9]/g,
+          ""
+        );
+        return item;
+      })
+      .filter(
+        (item) =>
+          item["#text_compare"].trim() && item["@_user"].startsWith("bili_")
+      );
+    // group by text
+    const groupedDanmuku = Array.from(
+      groupBy(
+        textFilterDanmuku,
+        (item) => `${item["#text_compare"]}|${item["@_user"]}`
+      )
+    ).filter((item) => item[1].length >= 5);
+
+    filterData = groupedDanmuku
+      .reduce((acc, cur) => {
+        return [...acc, ...cur[1]];
+      }, [])
+      .map((item) => {
+        const time = item["@_p"].split(",")[0];
+        const seconds = time.split(".")[0];
+        const milliseconds = time.split(".")[1].slice(0, 2);
+
+        return {
+          text: String(item["#text"]),
+          user: String(item["@_user"]),
+          time: Number(`${seconds}.${milliseconds}`),
+        };
+      });
+  } else if (options.blockLevel === 3) {
+    // console.log(
+    //   danmuku.filter((item) => {
+    //     if (item["#text"] === "哔那玩小r道具闺密⩉I57泗ꗠ90窘") {
+    //       console.log(item);
+    //     }
+    //   })
+    // );
+    // 用户名移除
+    filterData = danmuku
+      .filter((item) => item["@_user"].startsWith("bili_"))
+      .map((item) => {
+        const time = item["@_p"].split(",")[0];
+        const seconds = time.split(".")[0];
+        const milliseconds = time.split(".")[1].slice(0, 2);
+
+        return {
+          text: String(item["#text"]),
+          user: String(item["@_user"]),
+          time: Number(`${seconds}.${milliseconds}`),
+        };
+      });
+  }
+  console.log(`预计${filterData.length}条片哥弹幕`);
+
+  return filterData;
+};
+
 // 弹幕转换
 const convertAss = (
   input,
   output = undefined,
   options = {
-    duration: 5,
+    duration: 15,
     replaceSource: false,
     cleanGift: true,
+    blockLevel: 0,
   }
 ) => {
   let outputPath = output;
@@ -99,6 +190,11 @@ const convertAss = (
   if (!outputPath) {
     const { dir, name } = path.parse(input);
     outputPath = path.join(dir, `${name}_new.ass`);
+  }
+
+  let filterData = [];
+  if (options.blockLevel) {
+    filterData = block(options);
   }
 
   // 读取Ass文件
@@ -138,6 +234,36 @@ const convertAss = (
       }
     }
 
+    if (filterData.length > 0) {
+      // 片哥屏蔽功能
+      const filterFlag =
+        filterData.filter((filterItem) => {
+          // if (
+          //   // filterItem.time === item.start &&
+          //   filterItem.text === item.slices[0].fragments[0].text &&
+          //   filterItem.text === "哔那玩小r道具闺密⩉I57泗ꗠ90窘"
+          // ) {
+          //   console.log(
+          //     item,
+          //     filterItem.text,
+          //     item.slices[0].fragments[0].text,
+          //     filterItem.text === item.slices[0].fragments[0].text,
+          //     filterItem.time,
+          //     item.start,
+          //     filterItem.time === item.start
+          //   );
+          // }
+          return (
+            filterItem.time === item.start &&
+            filterItem.text === item.slices[0].fragments[0].text
+          );
+        }).length > 0;
+
+      if (filterFlag) {
+        // console.log(item.slices[0].fragments[0].text);
+        continue;
+      }
+    }
     items.push(item);
   }
 
@@ -269,7 +395,7 @@ const parseXmlObj = (input) => {
 // 生成弹幕报告
 const generateReport = (input, output, options = {}) => {
   // 读取Ass文件
-  const { danmuku, sc, guard, gift } = parseXmlObj(input);
+  const { danmuku, sc, guard, gift } = parseXmlObj(options.input2);
 
   const danmukuLength = danmuku.length;
   const scLength = sc.length;
@@ -317,7 +443,7 @@ const generateReport = (input, output, options = {}) => {
   const giftPrice = calculateGiftPrice({ sc, guard, gift });
 
   // 解析Ass文件
-  const assContent = fs.readFileSync(options.input2, "utf8");
+  const assContent = fs.readFileSync(input, "utf8");
   const assData = compile(assContent);
 
   const items = Array.from(
