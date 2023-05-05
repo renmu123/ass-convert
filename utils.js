@@ -87,7 +87,17 @@ const block = (options) => {
   const { danmuku } = parseXmlObj(options.input2);
   if (options.blockLevel === 1) {
     // 关键词移除
-    const blackWordList = ["伦乱", "泗", "𐊿", "Ӎ"];
+    const blackWordList = [
+      "伦乱",
+      "泗",
+      "𐊿",
+      "Ӎ",
+      "ꓟ",
+      "国铲",
+      "蛧",
+      "城人",
+      "鈤",
+    ];
     filterData = danmuku
       .filter(
         (item) =>
