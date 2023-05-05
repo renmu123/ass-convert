@@ -24,6 +24,7 @@ program
   .option("-i2, --input2 <type>", "开启片哥过滤时需要此参数")
   .action((options) => {
     options.blockLevel = Number(options.blockLevel);
+    options.duration = Number(options.duration);
 
     convertAss(options.input, options.output, options);
   });
@@ -43,6 +44,10 @@ program
     1920
   )
   .action((options) => {
+    options.interval = Number(options.interval);
+    options.height = Number(options.height);
+    options.width = Number(options.width);
+
     generateDanmakuImage(options.input, options.output, options);
   });
 
@@ -54,6 +59,8 @@ program
   .option("-o, --output <string>", "输出文件名")
   .option("-in, --interval <number>", "生成弹幕报告的间隔", 60)
   .action((options) => {
+    options.interval = Number(options.interval);
+
     generateReport(options.input, options.output, options);
   });
 
