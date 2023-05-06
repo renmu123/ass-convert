@@ -85,38 +85,7 @@ const handleMessageBox = (items, options) => {
 const block = (options) => {
   let filterData = [];
   const { danmuku } = parseXmlObj(options.input2);
-  if (options.blockLevel === 1) {
-    // 关键词移除
-    const blackWordList = [
-      "伦乱",
-      "泗",
-      "𐊿",
-      "Ӎ",
-      "ꓟ",
-      "国铲",
-      "蛧",
-      "城人",
-      "鈤",
-    ];
-    filterData = danmuku
-      .filter(
-        (item) =>
-          blackWordList.filter((word) => {
-            return String(item["#text"]).includes(word);
-          }).length > 0
-      )
-      .map((item) => {
-        const time = item["@_p"].split(",")[0];
-        const seconds = time.split(".")[0];
-        const milliseconds = time.split(".")[1].slice(0, 2);
-
-        return {
-          text: String(item["#text"]),
-          user: String(item["@_user"]),
-          time: Number(`${seconds}.${milliseconds}`),
-        };
-      });
-  } else if (options.blockLevel === 2) {
+  if (options.blockLevel === 2) {
     // 文字字段中去除所有的英文以及数字字符后做统计弹幕次数
     const textFilterDanmuku = danmuku
       .map((item) => {
@@ -138,44 +107,46 @@ const block = (options) => {
       )
     ).filter((item) => item[1].length >= 5);
 
-    filterData = groupedDanmuku
-      .reduce((acc, cur) => {
-        return [...acc, ...cur[1]];
-      }, [])
-      .map((item) => {
-        const time = item["@_p"].split(",")[0];
-        const seconds = time.split(".")[0];
-        const milliseconds = time.split(".")[1].slice(0, 2);
-
-        return {
-          text: String(item["#text"]),
-          user: String(item["@_user"]),
-          time: Number(`${seconds}.${milliseconds}`),
-        };
-      });
+    filterData = groupedDanmuku.reduce((acc, cur) => {
+      return [...acc, ...cur[1]];
+    }, []);
   } else if (options.blockLevel === 3) {
-    // console.log(
-    //   danmuku.filter((item) => {
-    //     if (item["#text"] === "哔那玩小r道具闺密⩉I57泗ꗠ90窘") {
-    //       console.log(item);
-    //     }
-    //   })
-    // );
     // 用户名移除
-    filterData = danmuku
-      .filter((item) => item["@_user"].startsWith("bili_"))
-      .map((item) => {
-        const time = item["@_p"].split(",")[0];
-        const seconds = time.split(".")[0];
-        const milliseconds = time.split(".")[1].slice(0, 2);
-
-        return {
-          text: String(item["#text"]),
-          user: String(item["@_user"]),
-          time: Number(`${seconds}.${milliseconds}`),
-        };
-      });
+    filterData = danmuku.filter((item) => {
+      if (item["@_user"].startsWith("bili_")) {
+        const uid = item["@_user"].split("_")[1];
+        if (uid.length >= 11) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return false;
+    });
+  } else if (options.blockLevel === 4) {
+    // 用户名移除
+    filterData = danmuku.filter((item) => item["@_user"].startsWith("bili_"));
   }
+  // link: https://github.com/hihkm/DanmakuFactory/issues/51
+  // 毫秒时间解析错误
+  filterData = filterData.map((item) => {
+    const time = item["@_p"].split(",")[0];
+    const seconds = time.split(".")[0];
+    let milliseconds = time.split(".")[1].slice(0, 2);
+
+    // if (milliseconds.endsWith("0")) {
+    //   milliseconds = Number(milliseconds.slice(0, 2)) - 1;
+    // } else {
+    //   milliseconds = milliseconds.slice(0, 2);
+    // }
+
+    return {
+      text: String(item["#text"]),
+      user: String(item["@_user"]),
+      time: Number(`${seconds}.${milliseconds}`),
+    };
+  });
+
   console.log(`预计${filterData.length}条片哥弹幕`);
 
   return filterData;
@@ -190,6 +161,7 @@ const convertAss = (
     replaceSource: false,
     cleanGift: true,
     blockLevel: 0,
+    filter: "",
   }
 ) => {
   let outputPath = output;
@@ -213,8 +185,27 @@ const convertAss = (
   // 解析Ass文件
   const assData = compile(assContent);
   let items = [];
+  let count = 0;
+
   // 移除message_box的动画样式
   for (const item of assData["dialogues"]) {
+    // 关键词屏蔽
+    if (options.filter) {
+      const reg = new RegExp(options.filter, "g");
+      let flag = false;
+      (item?.slices || []).map((slice) => {
+        (slice?.fragments || []).map((fragment) => {
+          if (reg.test(fragment?.text)) {
+            flag = true;
+          }
+        });
+      });
+      if (flag) {
+        count++;
+        continue;
+      }
+    }
+
     if (item.style === "message_box") {
       if (item.clip) {
         continue;
@@ -259,6 +250,10 @@ const convertAss = (
       }
     }
     items.push(item);
+  }
+
+  if (options.filter) {
+    console.log(`黑名单共屏蔽${count}条弹幕`);
   }
 
   items = handleMessageBox(items, options);

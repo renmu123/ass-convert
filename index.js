@@ -16,9 +16,10 @@ program
   .option("-r, --replaceSource", "是否替换源文件", false)
   .option("-d, --duration <number>", "SC持续时间（秒）", 5)
   .option("-cg, --cleanGift", "清除礼物弹幕，不包含SC以及上舰", true)
+  .option("-f, --filter <string>", "关键词屏蔽")
   .option(
     "-bl, --blockLevel <number>",
-    "片哥过滤机制，详细见文档，可选参数为1,2,3",
+    "片哥过滤机制，详细见文档，可选参数为2,3,4",
     0
   )
   .option("-i2, --input2 <type>", "开启片哥过滤时需要此参数")
